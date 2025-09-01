@@ -1,23 +1,17 @@
 #!/bin/bash
 
-# File paths
-IMG_PATH="/tmp/screenshot_ocr.png"
-OUT_PATH="/tmp/ocr_output"
+# Output paths
+IMG_PATH="/tmp/ocr_temp.png"
+OUT_PATH="/tmp/ocr_text"
 
-# Take interactive screenshot and save to IMG_PATH
-flameshot gui -r > "$IMG_PATH"
+# Use ImageMagick's `import` to select region and capture screenshot
+import "$IMG_PATH"
 
-# Exit if no image was captured
-if [ ! -s "$IMG_PATH" ]; then
-    notify-send "OCR Cancelled" "No screenshot taken."
-    exit 1
-fi
-
-# Run OCR and output to file
+# Run OCR
 tesseract "$IMG_PATH" "$OUT_PATH" >/dev/null 2>&1
 
-# Copy OCR result to clipboard
+# Copy text to clipboard
 cat "$OUT_PATH.txt" | xclip -selection clipboard
 
-# Optional: Notify user with preview
-notify-send "OCR Copied" "$(head -n 3 $OUT_PATH.txt)..."
+# Show a short preview
+notify-send "OCR Copied to Clipboard" "$(head -n 3 $OUT_PATH.txt)..."
